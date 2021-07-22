@@ -6,6 +6,9 @@ export async function postRecommendation(req: Request, res: Response) {
         const recommendations = await recommendationService.postRecommendation(
             req.body
         );
+        if (typeof recommendations === "number") {
+            return res.sendStatus(recommendations);
+        }
         res.sendStatus(201);
     } catch (e) {
         res.sendStatus(500);

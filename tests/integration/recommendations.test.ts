@@ -43,6 +43,56 @@ describe("POST /recommendations", () => {
             { id: 2, name: "Xote" },
         ]);
     });
+
+    it("should answer with status 409 if song is already added", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const body = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        await createRecommendation(body);
+        const res = await supertest(app).post("/recommendations").send(body);
+        expect(res.status).toBe(409);
+    });
+
+    it("should answer with status 400 if params are missing", async () => {
+        const res = await supertest(app).post("/recommendations");
+        expect(res.status).toBe(400);
+    });
+
+    it("should answer with status 400 if genres are invalid", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const body = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2, 3],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        const res = await supertest(app).post("/recommendations").send(body);
+        expect(res.status).toBe(400);
+    });
+
+    it("should answer with status 400 if genres name is empty", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const body = {
+            name: "    ",
+            genresIds: [1, 2, 3],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        const res = await supertest(app).post("/recommendations").send(body);
+        expect(res.status).toBe(400);
+    });
+
+    it("should answer with status 400 if link is not from youtube", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const body = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.vimeo.com/watch?v=chwyjJbcs1Y",
+        };
+        const res = await supertest(app).post("/recommendations").send(body);
+        expect(res.status).toBe(400);
+    });
 });
 
 // describe("POST /recommendations", () => {
