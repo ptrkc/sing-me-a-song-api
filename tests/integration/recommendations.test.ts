@@ -97,7 +97,7 @@ describe("POST /recommendations", () => {
 
 describe("GET /recommendations/random", () => {
     it("should answer with status 200 and return random song", async () => {
-        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop"]);
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);
         const testSong1 = {
             name: "Falamansa - Xote dos Milagres",
             genresIds: [1, 2],
@@ -108,21 +108,27 @@ describe("GET /recommendations/random", () => {
             genresIds: [3, 4],
             youtubeLink: "https://www.youtube.com/watch?v=c6vcnGXMpeI",
         };
+        const testSong3 = {
+            name: "Tame Impala - Elephant",
+            genresIds: [5],
+            youtubeLink: "https://www.youtube.com/watch?v=LnKUD_OztRE",
+        };
         await createRecommendation(testSong1);
         await createRecommendation(testSong2);
+        await createRecommendation(testSong3);
         const res = await supertest(app).get("/recommendations/random");
         expect(res.status).toBe(200);
         expect(res.body).toEqual({
             id: expect.any(Number),
             name: expect.any(String),
+            youtubeLink: expect.any(String),
+            score: expect.any(Number),
             genres: expect.arrayContaining([
                 expect.objectContaining({
                     id: expect.any(Number),
                     name: expect.any(String),
                 }),
             ]),
-            youtubeLink: expect.any(String),
-            score: expect.any(Number),
         });
     });
 

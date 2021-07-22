@@ -41,17 +41,18 @@ export async function getRandomRecommendation() {
         }
         let top = random70();
         let filteredList: Array<{ id: number; score: number }> = [];
-        while (!filteredList.length) {
+        let empty = true;
+        while (empty) {
             if (top) {
-                filteredList = recommendationList.filter((r) => {
-                    return r.score > 10;
-                });
+                filteredList = recommendationList.filter((r) => r.score > 10);
             } else {
-                filteredList = recommendationList.filter((r) => {
-                    return r.score <= 10;
-                });
+                filteredList = recommendationList.filter((r) => r.score <= 10);
             }
-            top = !top;
+            if (filteredList.length > 0) {
+                empty = false;
+            } else {
+                top = !top;
+            }
         }
         const id = filteredList[randomIndex(filteredList.length)].id;
         const recommendation =
@@ -76,8 +77,10 @@ export async function getRandomRecommendation() {
 }
 
 function random70() {
-    return Math.random() > 0.3 ? true : false;
+    const bol = Math.floor(Math.random() * 10) >= 3 ? true : false;
+    return bol;
 }
 function randomIndex(arrayLength: number) {
-    return Math.floor(Math.random() * (arrayLength - 1));
+    let index = Math.floor(Math.random() * arrayLength);
+    return index;
 }
