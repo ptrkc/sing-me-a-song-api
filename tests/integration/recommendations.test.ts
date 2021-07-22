@@ -108,3 +108,40 @@ describe("POST /recommendations", () => {
 //         expect(res.status).toBe(201);
 //     });
 // });
+
+describe("GET /recommendations/random", () => {
+    it("should answer with status 200 and return random song", async () => {
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop"]);
+        const testSong1 = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        const testSong2 = {
+            name: "Pabllo Vittar - Ultra Som",
+            genresIds: [3, 4],
+            youtubeLink: "https://www.youtube.com/watch?v=c6vcnGXMpeI",
+        };
+        await createRecommendation(testSong1);
+        await createRecommendation(testSong2);
+        const res = await supertest(app).get("/recommendations/random");
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            id: expect.any(Number),
+            name: expect.any(String),
+            genres: expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                }),
+            ]),
+            youtubeLink: expect.any(String),
+            score: expect.any(Number),
+        });
+    });
+
+    it("should answer with status 404 if database has no songs", async () => {
+        const res = await supertest(app).get("/recommendations/random");
+        expect(res.status).toBe(404);
+    });
+});

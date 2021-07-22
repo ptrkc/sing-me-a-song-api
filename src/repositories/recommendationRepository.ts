@@ -8,6 +8,34 @@ export async function getRecommendationByLink(link: string) {
     return recommendations.rows;
 }
 
+export async function getRecommendationList(): Promise<
+    { id: number; score: number }[]
+> {
+    let query = `SELECT songs.id, songs.score FROM songs`;
+    const recommendation = await db.query(query);
+    return recommendation.rows;
+}
+
+export async function getRecommendationById(id: number): Promise<
+    {
+        id: number;
+        name: string;
+        youtubeLink: string;
+        score: number;
+        genreId: number;
+        genreName: string;
+    }[]
+> {
+    let query = `
+    SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
+    FROM songs
+    JOIN genres_songs ON genres_songs."songId" = songs.id
+    JOIN genres ON genres_songs."genreId" = genres.id
+    WHERE songs.id = $1`;
+    const recommendation = await db.query(query, [id]);
+    return recommendation.rows;
+}
+
 export async function createRecommendation(newRecommendation: {
     name: string;
     genresIds: number[];
@@ -26,7 +54,3 @@ export async function createRecommendation(newRecommendation: {
     await db.query(query, genresIds);
     return;
 }
-
-// const recommendation = await db.query(
-//     `SELECT songs.*, genres_songs."genreId", genres.name AS "genreName" FROM songs JOIN genres_songs ON genres_songs."songId" = songs.id JOIN genres ON genres_songs."genreId" = genres.id WHERE songs.id = 1`
-// );

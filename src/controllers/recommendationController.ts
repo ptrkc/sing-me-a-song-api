@@ -14,3 +14,16 @@ export async function postRecommendation(req: Request, res: Response) {
         res.sendStatus(500);
     }
 }
+
+export async function getRandomRecommendation(req: Request, res: Response) {
+    try {
+        const recommendations =
+            await recommendationService.getRandomRecommendation();
+        if (typeof recommendations === "number") {
+            return res.sendStatus(recommendations);
+        }
+        res.send(recommendations);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+}
