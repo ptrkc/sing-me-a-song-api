@@ -45,9 +45,24 @@ describe("GET /genres/:id", () => {
 });
 
 describe("POST /genres", () => {
-    it('should answer with text "OK!" and status 200', async () => {
+    it("should answer with status 201 and create a genre when name is valid", async () => {
+        const body = { name: "Dubstep" };
+        const res = await supertest(app).post("/genres").send(body);
+        expect(res.status).toBe(201);
+    });
+    it("should answer with status 400 when name is empty", async () => {
+        const body = { name: "    " };
+        const res = await supertest(app).post("/genres").send(body);
+        expect(res.status).toBe(400);
+    });
+    it("should answer with status 400 when body is empty", async () => {
         const res = await supertest(app).post("/genres");
-        expect(res.text).toBe("You're POST-ing /genres");
-        expect(res.status).toBe(200);
+        expect(res.status).toBe(400);
+    });
+    it("should answer with status 409 when genre already exists", async () => {
+        await createGenre(["Dubstep"]);
+        const body = { name: "Dubstep" };
+        const res = await supertest(app).post("/genres").send(body);
+        expect(res.status).toBe(409);
     });
 });
