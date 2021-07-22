@@ -28,8 +28,8 @@ export async function getRecommendationById(id: number): Promise<
 > {
     let query = `
     SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
-    FROM songs
-    JOIN genres_songs ON genres_songs."songId" = songs.id
+    FROM genres_songs
+    JOIN songs ON genres_songs."songId" = songs.id
     JOIN genres ON genres_songs."genreId" = genres.id
     WHERE songs.id = $1`;
     const recommendation = await db.query(query, [id]);

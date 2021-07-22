@@ -53,7 +53,7 @@ export async function getRandomRecommendation() {
             }
             top = !top;
         }
-        const id = filteredList[randomId(filteredList)].id;
+        const id = filteredList[randomIndex(filteredList.length)].id;
         const recommendation =
             await recommendationRepository.getRecommendationById(id);
         let genres: Array<{ id: number; name: string }> = [];
@@ -78,6 +78,6 @@ export async function getRandomRecommendation() {
 function random70() {
     return Math.random() > 0.3 ? true : false;
 }
-function randomId(list: object[]) {
-    return Math.floor(Math.random() * list.length);
+function randomIndex(arrayLength: number) {
+    return Math.floor(Math.random() * (arrayLength - 1));
 }

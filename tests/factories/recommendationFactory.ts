@@ -6,7 +6,7 @@ export async function createRecommendation(newRecommendation: {
     youtubeLink: string;
 }) {
     const { name, genresIds, youtubeLink } = newRecommendation;
-    const songQuery = `INSERT INTO songs (name, "youtubeLink") VALUES ($1, $2) RETURNING id`;
+    const songQuery = `INSERT INTO songs (name, "youtubeLink") VALUES ($1, $2) RETURNING *`;
     const song = await db.query(songQuery, [name, youtubeLink]);
     const songId = song.rows[0].id;
     genresIds.forEach(async (genreId) => {

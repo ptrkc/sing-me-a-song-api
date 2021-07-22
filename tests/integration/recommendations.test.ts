@@ -95,20 +95,6 @@ describe("POST /recommendations", () => {
     });
 });
 
-// describe("POST /recommendations", () => {
-//     it("should answer with status 201 and add song to database", async () => {
-//         await createGenre(["Forró", "Xote"]);
-//         await createRecommendation(["Forró", "Xote"]);
-//         const body = {
-//             name: "Falamansa - Xote dos Milagres",
-//             genresIds: [1, 2],
-//             youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
-//         };
-//         const res = await supertest(app).post("/recommendations").send(body);
-//         expect(res.status).toBe(201);
-//     });
-// });
-
 describe("GET /recommendations/random", () => {
     it("should answer with status 200 and return random song", async () => {
         await createGenre(["Forró", "Xote", "Tecnobrega", "Pop"]);
