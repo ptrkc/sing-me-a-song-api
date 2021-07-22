@@ -1,3 +1,4 @@
+import { Request } from "express";
 import * as recommendationRepository from "../repositories/recommendationRepository";
 import * as genreRepository from "../repositories/genreRepository";
 import * as validate from "../validations/validations";
@@ -26,6 +27,28 @@ export async function postRecommendation(body: {
             return 409;
         }
         await recommendationRepository.createRecommendation(newRecommendation);
+        return true;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
+export async function postVote(id: number, upvote: boolean) {
+    try {
+        const song = await recommendationRepository.getRecommendationById(id);
+        if (!song.length) {
+            return 404;
+        }
+        if (upvote === true) {
+            await recommendationRepository.addUpvoteById(id);
+            return true;
+        } else {
+            if (song[0].score === -4) {
+                await recommendationRepository.deleteSong(id);
+            } else {
+                await recommendationRepository.addDownvoteById(id);
+            }
+        }
         return true;
     } catch (e) {
         console.log(e);

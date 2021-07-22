@@ -95,6 +95,63 @@ describe("POST /recommendations", () => {
     });
 });
 
+describe("POST /recommendations/:id/upvote", () => {
+    it("should answer with status 200 and add vote to database if params are valid", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const testSong = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        await createRecommendation(testSong);
+        const res = await supertest(app).post("/recommendations/1/upvote");
+        const song = await db.query(`SELECT * FROM songs WHERE songs.id = 1`);
+        expect(res.status).toBe(200);
+        expect(song.rows[0].score).toEqual(2);
+    });
+
+    it("should answer with status 404 if song is invalid", async () => {
+        const res = await supertest(app).post("/recommendations/32/upvote");
+        expect(res.status).toBe(404);
+    });
+});
+
+describe("POST /recommendations/:id/downvote", () => {
+    it("should answer with status 200 and subtract vote to database if params are valid", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const testSong = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        await createRecommendation(testSong);
+        const res = await supertest(app).post("/recommendations/1/downvote");
+        const song = await db.query(`SELECT * FROM songs WHERE songs.id = 1`);
+        expect(res.status).toBe(200);
+        expect(song.rows[0].score).toEqual(0);
+    });
+
+    it("should answer with status 200 and delete song if score gets to -5", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const testSong = {
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        };
+        await createRecommendation(testSong);
+        await db.query(`UPDATE songs SET score = -4 WHERE songs.id = 1`);
+        const res = await supertest(app).post("/recommendations/1/downvote");
+        const song = await db.query(`SELECT * FROM songs WHERE songs.id = 1`);
+        expect(res.status).toBe(200);
+        expect(song.rows.length).toBe(0);
+    });
+
+    it("should answer with status 404 if song is invalid", async () => {
+        const res = await supertest(app).post("/recommendations/32/downvote");
+        expect(res.status).toBe(404);
+    });
+});
+
 describe("GET /recommendations/random", () => {
     it("should answer with status 200 and return random song", async () => {
         await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);

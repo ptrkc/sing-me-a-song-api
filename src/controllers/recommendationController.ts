@@ -27,3 +27,29 @@ export async function getRandomRecommendation(req: Request, res: Response) {
         res.sendStatus(500);
     }
 }
+
+export async function postUpvote(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id);
+        const vote = await recommendationService.postVote(id, true);
+        if (typeof vote === "number") {
+            return res.sendStatus(vote);
+        }
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+}
+
+export async function postDownvote(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id);
+        const vote = await recommendationService.postVote(id, false);
+        if (typeof vote === "number") {
+            return res.sendStatus(vote);
+        }
+        res.sendStatus(200);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+}

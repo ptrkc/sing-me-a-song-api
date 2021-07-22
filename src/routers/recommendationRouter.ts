@@ -9,9 +9,9 @@ recommendations.get(
     recommendationController.getRandomRecommendation
 );
 
-// recommendations.post("/:id/upvote", recommendationController.postUpvote);
+recommendations.post("/:id/upvote", recommendationController.postUpvote);
 
-// recommendations.post("/:id/downvote", recommendationController.postDownvote);
+recommendations.post("/:id/downvote", recommendationController.postDownvote);
 
 // recommendations.get("/top/:amount", recommendationController.getTopRecommendations);
 

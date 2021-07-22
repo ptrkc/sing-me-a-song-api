@@ -65,3 +65,19 @@ export async function createRecommendation(newRecommendation: {
     await db.query(query, genresIds);
     return;
 }
+
+export async function addUpvoteById(id: number) {
+    await db.query(`UPDATE songs SET score = score +1 WHERE id = $1`, [id]);
+    return;
+}
+
+export async function addDownvoteById(id: number) {
+    await db.query(`UPDATE songs SET score = score -1 WHERE id = $1`, [id]);
+    return;
+}
+
+export async function deleteSong(id: number) {
+    await db.query(`DELETE FROM genres_songs WHERE "songId" = $1`, [id]);
+    await db.query(`DELETE FROM songs WHERE id = $1`, [id]);
+    return;
+}
