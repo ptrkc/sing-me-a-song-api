@@ -195,6 +195,69 @@ describe("GET /recommendations/random", () => {
     });
 });
 
+describe("GET /recommendations/genres/:id/random", () => {
+    it("should answer with status 200 and return random song from genre", async () => {
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);
+        await createRecommendation({
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        });
+        await createRecommendation({
+            name: "Falamansa - Xote da Alegria",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=QDAHMMMtFBI",
+        });
+        await createRecommendation({
+            name: "Tame Impala - Elephant",
+            genresIds: [5],
+            youtubeLink: "https://www.youtube.com/watch?v=LnKUD_OztRE",
+        });
+        const id = 1;
+        const res = await supertest(app).get(
+            `/recommendations/genres/${id}/random`
+        );
+        expect(res.status).toBe(200);
+        console.log(res.body);
+        expect(res.body).toEqual({
+            id: expect.any(Number),
+            name: expect.any(String),
+            youtubeLink: expect.any(String),
+            score: expect.any(Number),
+            genres: expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                }),
+            ]),
+        });
+    });
+
+    it("should answer with status 404 if database has no songs", async () => {
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);
+        const id = 1;
+        const res = await supertest(app).get(
+            `/recommendations/genres/${id}/random`
+        );
+        expect(res.status).toBe(404);
+    });
+    it("should answer with status 404 if genre does not exist", async () => {
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);
+        const id = 25;
+        const res = await supertest(app).get(
+            `/recommendations/genres/${id}/random`
+        );
+        expect(res.status).toBe(404);
+    });
+    it("should answer with status 404 for bad genre format", async () => {
+        const id = "asdasdsdasd";
+        const res = await supertest(app).get(
+            `/recommendations/genres/${id}/random`
+        );
+        expect(res.status).toBe(404);
+    });
+});
+
 describe("GET /recommendations/top/:amount", () => {
     it("should answer with status 200 and return top X songs", async () => {
         await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);

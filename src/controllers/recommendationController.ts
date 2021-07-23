@@ -28,6 +28,23 @@ export async function getRandomRecommendation(req: Request, res: Response) {
     }
 }
 
+export async function getRecommendationsFromGenre(req: Request, res: Response) {
+    try {
+        const id = parseInt(req.params.id);
+        if (!id) {
+            return res.sendStatus(404);
+        }
+        const recommendations =
+            await recommendationService.getRecommendationsFromGenre(id);
+        if (typeof recommendations === "number") {
+            return res.sendStatus(recommendations);
+        }
+        res.send(recommendations);
+    } catch (e) {
+        res.sendStatus(500);
+    }
+}
+
 export async function getTopRecommendations(req: Request, res: Response) {
     try {
         const limit = parseInt(req.params.amount);

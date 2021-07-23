@@ -18,6 +18,9 @@ recommendations.get(
     recommendationController.getTopRecommendations
 );
 
-// recommendations.get("/genres/:id/random", recommendationController.getRecommendationsFromGenre);
+recommendations.get(
+    "/genres/:id/random",
+    recommendationController.getRecommendationsFromGenre
+);
 
 export default recommendations;
