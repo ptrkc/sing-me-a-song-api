@@ -32,17 +32,26 @@ export async function getRecommendationById(id: number): Promise<
     JOIN songs ON genres_songs."songId" = songs.id
     JOIN genres ON genres_songs."genreId" = genres.id
     WHERE songs.id = $1`;
+    const recommendation = await db.query(query, [id]);
+    return recommendation.rows;
+}
 
-    // let query1 = `SELECT songs.* FROM songs WHERE songs.id = $1`;
-    // let query2 = `SELECT genres_songs.* FROM genres_songs WHERE genres_songs."songId" = $1`;
-    // let query3 = `SELECT genres.* FROM genres`;
-    // const debug1 = await db.query(query1, [id]);
-    // const debug2 = await db.query(query2, [id]);
-    // const debug3 = await db.query(query3);
-    // console.log(debug1.rows);
-    // console.log(debug2.rows);
-    // console.log(debug3.rows);
-
+export async function getRecommendationsByGenreId(id: number): Promise<
+    {
+        id: number;
+        name: string;
+        youtubeLink: string;
+        score: number;
+        genreId: number;
+        genreName: string;
+    }[]
+> {
+    let query = `
+    SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
+    FROM genres_songs
+    JOIN songs ON genres_songs."songId" = songs.id
+    JOIN genres ON genres_songs."genreId" = genres.id
+    WHERE genres_songs."songId" IN (SELECT genres_songs."songId" FROM genres_songs WHERE "genreId" = $1) ORDER BY songs.id`;
     const recommendation = await db.query(query, [id]);
     return recommendation.rows;
 }

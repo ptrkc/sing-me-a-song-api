@@ -3,6 +3,8 @@ import supertest from "supertest";
 import app from "../../src/app";
 import * as database from "../utils/database";
 import { createGenre } from "../factories/genreFactory";
+import { createRecommendation } from "../factories/recommendationFactory";
+import db from "../../src/database";
 
 beforeAll(async () => {
     await database.clear();
@@ -36,11 +38,59 @@ describe("GET /genres", () => {
 });
 
 describe("GET /genres/:id", () => {
-    it('should answer with text "OK!" and status 200', async () => {
-        const id = 24;
+    it("should answer songs and status 200 on valid id", async () => {
+        await createGenre(["Forró", "Xote"]);
+        await createRecommendation({
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        });
+        await createRecommendation({
+            name: "Falamansa - Xote da Alegria",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=QDAHMMMtFBI",
+        });
+        await createRecommendation({
+            name: "Avisa - Falamansa",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=XEo9-KWGel8",
+        });
+        await db.query(`UPDATE songs SET score = 23`);
+        const id = 1;
         const res = await supertest(app).get(`/genres/${id}`);
-        expect(res.text).toBe(`You're GET-ing /genres/${id}`);
         expect(res.status).toBe(200);
+        expect(res.body).toEqual({
+            id: expect.any(Number),
+            name: expect.any(String),
+            score: expect.any(Number),
+            recommendations: expect.arrayContaining([
+                expect.objectContaining({
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                    genres: expect.arrayContaining([
+                        expect.objectContaining({
+                            id: expect.any(Number),
+                            name: expect.any(String),
+                        }),
+                    ]),
+                    youtubeLink: expect.any(String),
+                    score: expect.any(Number),
+                }),
+            ]),
+        });
+    });
+
+    it("should answer 404 if no songs are available", async () => {
+        await createGenre(["Forró", "Xote"]);
+        const id = 1;
+        const res = await supertest(app).get(`/genres/${id}`);
+        expect(res.status).toBe(404);
+    });
+
+    it("should answer 404 if id is invalid", async () => {
+        const id = 999;
+        const res = await supertest(app).get(`/genres/${id}`);
+        expect(res.status).toBe(404);
     });
 });
 

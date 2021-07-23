@@ -12,8 +12,12 @@ export async function getGenres(req: Request, res: Response) {
 
 export async function getGenreById(req: Request, res: Response) {
     try {
-        const id = req.params.id;
-        res.send(`You're GET-ing /genres/${id}`);
+        const id = parseInt(req.params.id);
+        const newGenre = await genreService.getGenreById(id);
+        if (typeof newGenre === "number") {
+            return res.sendStatus(newGenre);
+        }
+        res.send(newGenre);
     } catch (e) {
         res.sendStatus(500);
     }

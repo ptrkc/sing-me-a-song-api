@@ -1,8 +1,50 @@
 import * as genreRepository from "../repositories/genreRepository";
+import * as recommendationRepository from "../repositories/recommendationRepository";
 
 export async function getGenres() {
     const genres = await genreRepository.getGenres();
     return genres;
+}
+
+export async function getGenreById(id: number) {
+    const genres = await recommendationRepository.getRecommendationsByGenreId(
+        id
+    );
+    if (!genres.length) {
+        return 404;
+    }
+    const genreStats = await genreRepository.getGenreStatsById(id);
+    const recommendations: {
+        id: number;
+        name: string;
+        youtubeLink: string;
+        score: number;
+        genres: { id: number; name: string }[];
+    }[] = [];
+    const control: number[] = [];
+    genres.forEach((i) => {
+        const id = i.id;
+        if (!control.includes(id)) {
+            let newItem = {
+                ...i,
+                genres: [{ id: i.genreId, name: i.genreName }],
+            };
+            delete newItem.genreId;
+            delete newItem.genreName;
+            recommendations.push(newItem);
+            control.push(id);
+        } else {
+            const existing = recommendations.find((o) => o.id === id);
+            existing.genres.push({ id: i.genreId, name: i.genreName });
+        }
+    });
+    const recommendationsByGenre = {
+        id: genreStats[0].id,
+        name: genreStats[0].name,
+        score: parseInt(genreStats[0].score),
+        recommendations: [...recommendations],
+    };
+    return recommendationsByGenre;
 }
 
 export async function postGenre(body: { name: string }) {

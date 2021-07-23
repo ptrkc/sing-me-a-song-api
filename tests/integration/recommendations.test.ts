@@ -139,7 +139,7 @@ describe("POST /recommendations/:id/downvote", () => {
             youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
         };
         await createRecommendation(testSong);
-        await db.query(`UPDATE songs SET score = -4 WHERE songs.id = 1`);
+        await db.query(`UPDATE songs SET score = -5 WHERE songs.id = 1`);
         const res = await supertest(app).post("/recommendations/1/downvote");
         const song = await db.query(`SELECT * FROM songs WHERE songs.id = 1`);
         expect(res.status).toBe(200);

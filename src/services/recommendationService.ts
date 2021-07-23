@@ -43,7 +43,7 @@ export async function postVote(id: number, upvote: boolean) {
             await recommendationRepository.addUpvoteById(id);
             return true;
         } else {
-            if (song[0].score === -4) {
+            if (song[0].score === -5) {
                 await recommendationRepository.deleteSong(id);
             } else {
                 await recommendationRepository.addDownvoteById(id);
