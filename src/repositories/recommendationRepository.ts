@@ -16,6 +16,31 @@ export async function getRecommendationList(): Promise<
     return recommendation.rows;
 }
 
+export async function getTopRecommendations(limit: number): Promise<
+    {
+        id: number;
+        name: string;
+        youtubeLink: string;
+        score: number;
+        genreId: number;
+        genreName: string;
+    }[]
+> {
+    try {
+        let query = `
+    SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
+    FROM genres_songs
+    JOIN songs ON genres_songs."songId" = songs.id
+    JOIN genres ON genres_songs."genreId" = genres.id
+    WHERE songs.id IN (SELECT songs.id FROM songs ORDER BY score DESC LIMIT $1)
+    ORDER BY score DESC`;
+        const recommendation = await db.query(query, [limit]);
+        return recommendation.rows;
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 export async function getRecommendationById(id: number): Promise<
     {
         id: number;

@@ -99,6 +99,38 @@ export async function getRandomRecommendation() {
     }
 }
 
+export async function getTopRecommendations(limit: number) {
+    const songs = await recommendationRepository.getTopRecommendations(limit);
+    if (!songs.length) {
+        return 404;
+    }
+    const recommendations: {
+        id: number;
+        name: string;
+        youtubeLink: string;
+        score: number;
+        genres: { id: number; name: string }[];
+    }[] = [];
+    const control: number[] = [];
+    songs.forEach((i) => {
+        const id = i.id;
+        if (!control.includes(id)) {
+            let newItem = {
+                ...i,
+                genres: [{ id: i.genreId, name: i.genreName }],
+            };
+            delete newItem.genreId;
+            delete newItem.genreName;
+            recommendations.push(newItem);
+            control.push(id);
+        } else {
+            const existing = recommendations.find((o) => o.id === id);
+            existing.genres.push({ id: i.genreId, name: i.genreName });
+        }
+    });
+    return recommendations;
+}
+
 function random70() {
     const bol = Math.floor(Math.random() * 10) >= 3 ? true : false;
     return bol;

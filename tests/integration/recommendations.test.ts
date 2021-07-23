@@ -194,3 +194,69 @@ describe("GET /recommendations/random", () => {
         expect(res.status).toBe(404);
     });
 });
+
+describe("GET /recommendations/top/:amount", () => {
+    it("should answer with status 200 and return top X songs", async () => {
+        await createGenre(["Forró", "Xote", "Tecnobrega", "Pop", "Indie"]);
+        await createRecommendation({
+            name: "Falamansa - Xote dos Milagres",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
+        });
+        await createRecommendation({
+            name: "Pabllo Vittar - Ultra Som",
+            genresIds: [3, 4],
+            youtubeLink: "https://www.youtube.com/watch?v=c6vcnGXMpeI",
+        });
+        await createRecommendation({
+            name: "Tame Impala - Elephant",
+            genresIds: [5],
+            youtubeLink: "https://www.youtube.com/watch?v=LnKUD_OztRE",
+        });
+        await createRecommendation({
+            name: "Falamansa - Xote da Alegria",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=QDAHMMMtFBI",
+        });
+        await createRecommendation({
+            name: "Avisa - Falamansa",
+            genresIds: [1, 2],
+            youtubeLink: "https://www.youtube.com/watch?v=XEo9-KWGel8",
+        });
+        const amount = 3;
+        const res = await supertest(app).get(`/recommendations/top/${amount}`);
+        expect(res.status).toBe(200);
+        expect(res.body).toEqual(
+            expect.arrayContaining([
+                {
+                    id: expect.any(Number),
+                    name: expect.any(String),
+                    youtubeLink: expect.any(String),
+                    score: expect.any(Number),
+                    genres: expect.arrayContaining([
+                        expect.objectContaining({
+                            id: expect.any(Number),
+                            name: expect.any(String),
+                        }),
+                    ]),
+                },
+            ])
+        );
+    });
+
+    it("should answer with status 404 if no songs available", async () => {
+        const amout = 3;
+        const res = await supertest(app).get(`/recommendations/top/${amout}`);
+        expect(res.status).toBe(404);
+    });
+
+    it("should answer with status 400 if bad limit specified", async () => {
+        const res = await supertest(app).get(`/recommendations/top/asd`);
+        expect(res.status).toBe(400);
+    });
+
+    it("should answer with status 404 if no limit specified", async () => {
+        const res = await supertest(app).get(`/recommendations/top/`);
+        expect(res.status).toBe(404);
+    });
+});
