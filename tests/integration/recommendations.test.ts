@@ -218,7 +218,6 @@ describe("GET /recommendations/genres/:id/random", () => {
             `/recommendations/genres/${id}/random`
         );
         expect(res.status).toBe(200);
-        console.log(res.body);
         expect(res.body).toEqual({
             id: expect.any(Number),
             name: expect.any(String),

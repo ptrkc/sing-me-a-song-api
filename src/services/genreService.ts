@@ -1,6 +1,14 @@
 import * as genreRepository from "../repositories/genreRepository";
 import * as recommendationRepository from "../repositories/recommendationRepository";
 
+interface Recommendation {
+    id: number;
+    name: string;
+    youtubeLink: string;
+    score: number;
+    genres: { id: number; name: string }[];
+}
+
 export async function getGenres() {
     const genres = await genreRepository.getGenres();
     return genres;
@@ -14,13 +22,7 @@ export async function getGenreById(id: number) {
         return 404;
     }
     const genreStats = await genreRepository.getGenreStatsById(id);
-    const recommendations: {
-        id: number;
-        name: string;
-        youtubeLink: string;
-        score: number;
-        genres: { id: number; name: string }[];
-    }[] = [];
+    const recommendations: Recommendation[] = [];
     const control: number[] = [];
     genres.forEach((i) => {
         const id = i.id;

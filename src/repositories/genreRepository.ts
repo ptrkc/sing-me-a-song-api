@@ -1,17 +1,28 @@
 import db from "../database";
 
-export async function getGenres(): Promise<{ id: number; name: string }[]> {
+interface Genre {
+    id: number;
+    name: string;
+}
+
+interface GenreStats {
+    id: number;
+    name: string;
+    score: string;
+}
+
+export async function getGenres(): Promise<Genre[]> {
     const genres = await db.query(`SELECT * FROM genres ORDER BY name`);
     return genres.rows;
 }
 
-export async function getGenreById(ids: number[]) {
+export async function getGenreById(ids: number[]): Promise<Genre[]> {
     let query = `SELECT * FROM genres WHERE id = $1 `;
     const genres = await db.query(query, ids);
     return genres.rows;
 }
 
-export async function getGenreStatsById(id: number) {
+export async function getGenreStatsById(id: number): Promise<GenreStats[]> {
     let query = `
     SELECT genres.id AS id,  genres.name AS name, SUM(songs.score) AS score 
     FROM genres_songs 
@@ -22,14 +33,14 @@ export async function getGenreStatsById(id: number) {
     return genres.rows;
 }
 
-export async function getGenreByName(name: string) {
+export async function getGenreByName(name: string): Promise<Genre[]> {
     const genres = await db.query(`SELECT * FROM genres WHERE name = $1`, [
         name,
     ]);
     return genres.rows;
 }
 
-export async function getGenreByIds(ids: number[]) {
+export async function getGenreByIds(ids: number[]): Promise<Genre[]> {
     let query = `SELECT * FROM genres WHERE id = $1 `;
     for (let i = 2; i <= ids.length; i++) {
         query += `OR id = $${i}`;
@@ -39,8 +50,6 @@ export async function getGenreByIds(ids: number[]) {
 }
 
 export async function createGenre(name: string) {
-    const genres = await db.query(`INSERT INTO genres (name) VALUES ($1)`, [
-        name,
-    ]);
-    return genres.rows;
+    await db.query(`INSERT INTO genres (name) VALUES ($1)`, [name]);
+    return;
 }

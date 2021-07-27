@@ -1,6 +1,32 @@
 import db from "../database";
 
-export async function getRecommendationByLink(link: string) {
+interface Recommendation {
+    id: number;
+    name: string;
+    youtubeLink: string;
+    score: number;
+    genreId: number;
+    genreName: string;
+}
+
+interface Song {
+    id: number;
+    name: string;
+    youtubeLink: string;
+    score: number;
+}
+
+interface SongIdAndScore {
+    id: number;
+    score: number;
+}
+interface NewRecommendation {
+    name: string;
+    genresIds: number[];
+    youtubeLink: string;
+}
+
+export async function getRecommendationByLink(link: string): Promise<Song[]> {
     const recommendations = await db.query(
         `SELECT * FROM songs WHERE "youtubeLink" = $1`,
         [link]
@@ -8,24 +34,15 @@ export async function getRecommendationByLink(link: string) {
     return recommendations.rows;
 }
 
-export async function getRecommendationList(): Promise<
-    { id: number; score: number }[]
-> {
+export async function getRecommendationList(): Promise<SongIdAndScore[]> {
     let query = `SELECT songs.id, songs.score FROM songs`;
     const recommendation = await db.query(query);
     return recommendation.rows;
 }
 
-export async function getTopRecommendations(limit: number): Promise<
-    {
-        id: number;
-        name: string;
-        youtubeLink: string;
-        score: number;
-        genreId: number;
-        genreName: string;
-    }[]
-> {
+export async function getTopRecommendations(
+    limit: number
+): Promise<Recommendation[]> {
     try {
         let query = `
     SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
@@ -41,16 +58,9 @@ export async function getTopRecommendations(limit: number): Promise<
     }
 }
 
-export async function getRecommendationById(id: number): Promise<
-    {
-        id: number;
-        name: string;
-        youtubeLink: string;
-        score: number;
-        genreId: number;
-        genreName: string;
-    }[]
-> {
+export async function getRecommendationById(
+    id: number
+): Promise<Recommendation[]> {
     let query = `
     SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
     FROM genres_songs
@@ -61,16 +71,9 @@ export async function getRecommendationById(id: number): Promise<
     return recommendation.rows;
 }
 
-export async function getRecommendationsByGenreId(id: number): Promise<
-    {
-        id: number;
-        name: string;
-        youtubeLink: string;
-        score: number;
-        genreId: number;
-        genreName: string;
-    }[]
-> {
+export async function getRecommendationsByGenreId(
+    id: number
+): Promise<Recommendation[]> {
     let query = `
     SELECT songs.*, genres_songs."genreId", genres.name AS "genreName"
     FROM genres_songs
@@ -81,11 +84,9 @@ export async function getRecommendationsByGenreId(id: number): Promise<
     return recommendation.rows;
 }
 
-export async function createRecommendation(newRecommendation: {
-    name: string;
-    genresIds: number[];
-    youtubeLink: string;
-}) {
+export async function createRecommendation(
+    newRecommendation: NewRecommendation
+) {
     const { name, genresIds, youtubeLink } = newRecommendation;
     const song = await db.query(
         `INSERT INTO songs (name, "youtubeLink") VALUES ($1, $2) RETURNING id`,

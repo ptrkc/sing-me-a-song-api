@@ -3,11 +3,30 @@ import * as recommendationRepository from "../repositories/recommendationReposit
 import * as genreRepository from "../repositories/genreRepository";
 import * as validate from "../validations/validations";
 
-export async function postRecommendation(body: {
+interface NewRecommendation {
     name: string;
     genresIds: number[];
     youtubeLink: string;
-}) {
+}
+
+interface SongIdAndScore {
+    id: number;
+    score: number;
+}
+interface Recommendation {
+    id: number;
+    name: string;
+    youtubeLink: string;
+    score: number;
+    genres: { id: number; name: string }[];
+}
+
+interface Genre {
+    id: number;
+    name: string;
+}
+
+export async function postRecommendation(body: NewRecommendation) {
     try {
         const newRecommendation = validate.recommendation(body);
         if (!newRecommendation) {
@@ -63,7 +82,7 @@ export async function getRandomRecommendation() {
             return 404;
         }
         let top = random70();
-        let filteredList: Array<{ id: number; score: number }> = [];
+        let filteredList: SongIdAndScore[] = [];
         let empty = true;
         while (empty) {
             if (top) {
@@ -80,7 +99,7 @@ export async function getRandomRecommendation() {
         const id = filteredList[randomIndex(filteredList.length)].id;
         const recommendation =
             await recommendationRepository.getRecommendationById(id);
-        let genres: Array<{ id: number; name: string }> = [];
+        let genres: Genre[] = [];
         recommendation.forEach((r) => {
             genres.push({
                 id: r.genreId,
@@ -106,7 +125,7 @@ export async function getRecommendationsFromGenre(genreId: number) {
             return 404;
         }
         let top = random70();
-        let filteredList: Array<{ id: number; score: number }> = [];
+        let filteredList: SongIdAndScore[] = [];
         let empty = true;
         while (empty) {
             if (top) {
@@ -123,7 +142,7 @@ export async function getRecommendationsFromGenre(genreId: number) {
         const id = filteredList[randomIndex(filteredList.length)].id;
         const recommendation =
             await recommendationRepository.getRecommendationById(id);
-        let genres: Array<{ id: number; name: string }> = [];
+        let genres: Genre[] = [];
         recommendation.forEach((r) => {
             genres.push({
                 id: r.genreId,
@@ -147,13 +166,7 @@ export async function getTopRecommendations(limit: number) {
     if (!songs.length) {
         return 404;
     }
-    const recommendations: {
-        id: number;
-        name: string;
-        youtubeLink: string;
-        score: number;
-        genres: { id: number; name: string }[];
-    }[] = [];
+    const recommendations: Recommendation[] = [];
     const control: number[] = [];
     songs.forEach((i) => {
         const id = i.id;
