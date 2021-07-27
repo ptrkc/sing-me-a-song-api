@@ -5,9 +5,7 @@ interface Genre {
     name: string;
 }
 
-interface GenreStats {
-    id: number;
-    name: string;
+interface GenreStats extends Genre {
     score: string;
 }
 

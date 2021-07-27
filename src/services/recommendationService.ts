@@ -1,4 +1,3 @@
-import { Request } from "express";
 import * as recommendationRepository from "../repositories/recommendationRepository";
 import * as genreRepository from "../repositories/genreRepository";
 import * as validate from "../validations/validations";
@@ -9,21 +8,20 @@ interface NewRecommendation {
     youtubeLink: string;
 }
 
+interface Genre {
+    id: number;
+    name: string;
+}
+
 interface SongIdAndScore {
     id: number;
     score: number;
 }
-interface Recommendation {
-    id: number;
+
+interface Recommendation extends SongIdAndScore {
     name: string;
     youtubeLink: string;
-    score: number;
-    genres: { id: number; name: string }[];
-}
-
-interface Genre {
-    id: number;
-    name: string;
+    genres: Genre[];
 }
 
 export async function postRecommendation(body: NewRecommendation) {

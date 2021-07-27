@@ -1,29 +1,24 @@
 import db from "../database";
 
-interface Recommendation {
-    id: number;
+interface NewRecommendation {
     name: string;
+    genresIds: number[];
     youtubeLink: string;
-    score: number;
-    genreId: number;
-    genreName: string;
-}
-
-interface Song {
-    id: number;
-    name: string;
-    youtubeLink: string;
-    score: number;
 }
 
 interface SongIdAndScore {
     id: number;
     score: number;
 }
-interface NewRecommendation {
+
+interface Song extends SongIdAndScore {
     name: string;
-    genresIds: number[];
     youtubeLink: string;
+}
+
+interface Recommendation extends Song {
+    genreId: number;
+    genreName: string;
 }
 
 export async function getRecommendationByLink(link: string): Promise<Song[]> {

@@ -1,12 +1,17 @@
 import * as genreRepository from "../repositories/genreRepository";
 import * as recommendationRepository from "../repositories/recommendationRepository";
 
+interface Genre {
+    id: number;
+    name: string;
+}
+
 interface Recommendation {
     id: number;
     name: string;
     youtubeLink: string;
     score: number;
-    genres: { id: number; name: string }[];
+    genres: Genre[];
 }
 
 export async function getGenres() {
